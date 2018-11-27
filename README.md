@@ -1,9 +1,9 @@
 # Xamapod
 A tool to generate all the binding files needed in a **Xamarin** binding library
 from a **Cocoapods** library. The generated binding files are both the **fat libraries** and
-**definitions files** (_ApiDefinitions.cs_ and _Structs.cs/StructAndEnums.cs_) used later on by the Binding library.
+**definitions files** (_ApiDefinitions.cs_ and _Structs.cs/StructAndEnums.cs_) used later by the Binding library.
 
-## ⛓️ Works with
+## 🔗 Works with
 
 - **Swift** libraries ✅
 - **ObjectiveC** libraries ✅
