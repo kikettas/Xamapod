@@ -29,7 +29,7 @@ To start using the tool, go to the repo folder and run this command:
 sh build -p YOUR_POD_NAME
 ```
 
-Optionally, you can specify both `-s` (subspecs) and `-l`(links to external sources, separated by commas) option.
+Optionally, you can specify both `-s` (subspecs, separated by commas) and `-l`(links to external sources, separated by commas) option.
 
 > Since **Swift** libraries are not officialy supported by Xamarin, the process of
 bulding these binding files is slightly different. First, you have
