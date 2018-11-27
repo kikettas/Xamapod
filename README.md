@@ -3,7 +3,7 @@ A tool to generate all the binding files needed in a **Xamarin** binding library
 from a **Cocoapods** library. The generated binding files are both the **fat libraries** and
 **definitions files** (_ApiDefinitions.cs_ and _Structs.cs/StructAndEnums.cs_) used later on by the Binding library.
 
-## 🚀 Works with
+## ⛓️ Works with
 
 - **Swift** libraries ✅
 - **ObjectiveC** libraries ✅
@@ -11,7 +11,7 @@ from a **Cocoapods** library. The generated binding files are both the **fat lib
 - Pods from external sources ✅
 
 
-## 🛠 Requirements
+## 📋 Requirements
 
 - Xcode Command Line tools (can be downloaded in Xcode or from [here](https://developer.apple.com/downloads/index.action))
 - [Cocoapods](https://guides.cocoapods.org/using/getting-started.html)
@@ -21,7 +21,7 @@ from a **Cocoapods** library. The generated binding files are both the **fat lib
 
 Simply clone this repository.
 
-## 🛠 Building a binding library from a pod
+## 🚀 Building a binding library from a pod
 
 To start using the tool, go to the repo folder and run this command:
 
