@@ -38,7 +38,7 @@ to the binding library with the **`@objc`** attribute. After doing so, you can s
 
 ### ObjectiveC pod
 
-When it finishes if the pod specified is an **ObjectiveC** pod, you will get an output like this:
+Once it finishes, you will get this output:
 
 ```sh
 ▸ Installing Pods... ✅
@@ -51,7 +51,7 @@ When it finishes if the pod specified is an **ObjectiveC** pod, you will get an 
 
 ### Swift pod
 
-During the building, besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
+The output is similar but during the building, besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
 with the correct names. Finally all the Swift libraries required by the binding library are listed.
 
 
