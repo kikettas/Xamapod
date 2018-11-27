@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+# Initialization
+yellow=`tput setaf 3`
+reset=`tput sgr0`
+arrow='\033[33m▸\033[0m'
+OUTPUT_FAT_LIBRARIES_PATH="Generated/Fat libraries"
+FINAL_FRAMEWORK_NAME=""
+
+# Arguments
+while getopts ":p:s:l:" opt; do
+  case $opt in
+    p) POD_NAME="$OPTARG"
+    ;;
+    s) SUBPODS="$OPTARG"
+    ;;
+    l) PODFILE_EXTERNAL_SOURCES="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
+
+if [ -z "$POD_NAME" ]
+  then
+    printf "\n❌  The pod name must be specified"
+    exit
+fi
+
+# Clean up
+rm -rf Generated 2> /dev/null || true
+rm -rf Project/Pods 2> /dev/null || true
+rm -rf Project/build 2> /dev/null || true
+rm Project/Podfile* 2> /dev/null || true
+
+# Move to project folder
+cd Project
+
+# Create Podfile
+touch Podfile
+
+# Add sources if any
+if [ ! -z "$PODFILE_EXTERNAL_SOURCES" ]
+  then
+    IFS=',' read -ra ADDR <<< "$PODFILE_EXTERNAL_SOURCES"
+    for i in "${ADDR[@]}"; do
+      source="source '$i'"
+      printf "$source\n" >> Podfile
+
+    done
+fi
+
+# Add use_frameworks and target lines in Podfile
+printf "\n%s\n\n%s\n" "use_frameworks!" "target 'PodsProject' do" >> Podfile
+
+# Add Pod
+printf "\t%s\n" "pod '$POD_NAME'" >> Podfile
+
+# Add Subpods if any
+if [ ! -z "$PODFILE_EXTERNAL_SOURCES" ]
+  then
+  IFS=',' read -ra ADDR <<< "$SUBPODS"
+  for i in "${ADDR[@]}"; do
+    printf "\t%s\n" "pod '$POD_NAME/$i'">> Podfile
+
+  done
+fi
+
+# Finish Podfile creation
+printf "%s\n" "end" >> Podfile
+
+# Install pods
+printf -- "\n$arrow Installing \033[1mPods\033[0m..."
+
+podinstallresult=$(pod install --repo-update 2>&1)
+if [ ! -f "Podfile.lock" ]; then
+  printf "\n❌  $podinstallresult"
+  exit
+fi
+
+printf -- " ✅\n"
+
+# Build libraries
+printf -- "$arrow Building \033[1mlibraries\033[0m..."
+
+xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=YES -sdk iphonesimulator &> /dev/null
+xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=YES -sdk iphoneos &> /dev/null
+
+printf -- " ✅\n"
+
+# Create fat libraries
+cd ..
+printf -- "$arrow Creating \033[1mfat libraries\033[0m..."
+
+mkdir -p "$OUTPUT_FAT_LIBRARIES_PATH" 2> /dev/null
+
+BUILD_DIR="Project/build"
+BUILD_IPHONE_RELEASE_DIR="${BUILD_DIR}/Release-iphoneos"
+BUILD_SIMULATOR_RELEASE_DIR="${BUILD_DIR}/Release-iphonesimulator"
+
+for dir in $BUILD_IPHONE_RELEASE_DIR/*/
+do
+    dir=${dir%*/}
+    frameworkFolder=${dir##*/}
+    frameworkPath=( "$dir"/*.framework )
+    frameworkName=$(basename $frameworkPath .framework)
+
+    if [ "$frameworkFolder" == "$POD_NAME" ]; then
+      FINAL_FRAMEWORK_NAME="$frameworkName"
+    fi
+
+    cp -R "$BUILD_IPHONE_RELEASE_DIR/$frameworkFolder/$frameworkName.framework" "${OUTPUT_FAT_LIBRARIES_PATH}"
+    lipo -create "$BUILD_SIMULATOR_RELEASE_DIR/$frameworkFolder/$frameworkName.framework/$frameworkName" "$BUILD_IPHONE_RELEASE_DIR/$frameworkFolder/$frameworkName.framework/$frameworkName" -output "${OUTPUT_FAT_LIBRARIES_PATH}/$frameworkName.framework/$frameworkName"
+
+    SIMULATOR_MODULES_FOLDER="$BUILD_SIMULATOR_RELEASE_DIR/$frameworkFolder/$frameworkName.framework/Modules"
+    if [ -d "$SIMULATOR_MODULES_FOLDER/$frameworkName.swiftmodule" ]; then
+      cp "$SIMULATOR_MODULES_FOLDER/$frameworkName.swiftmodule"/* "${OUTPUT_FAT_LIBRARIES_PATH}/$frameworkName.framework/Modules/$frameworkName.swiftmodule/"
+    fi
+done
+
+printf -- " ✅\n"
+
+# Move to Generated folder
+cd Generated
+
+# Generate bindings files
+printf -- "$arrow Creating \033[1mbinding files\033[0m..."
+
+# if it is a Swift library
+if [ -f "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/$FINAL_FRAMEWORK_NAME-Swift.h" ]; then
+
+  # Create binding files
+  sharpie bind -sdk iphoneos -o ./ -scope "Fat libraries" "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/$FINAL_FRAMEWORK_NAME-Swift.h" &> /dev/null
+
+  if [ ! $? -eq 0 ]; then
+    printf "\n❌  There was an error binding the library.\n Are there types to be bound in the $FINAL_FRAMEWORK_NAME-Swift.h file?\n"
+    exit
+  fi
+
+  printf -- " ✅\n"
+
+  # Normalize binding files
+  printf -- "$arrow Normalizing \033[1mbinding files\033[0m..."
+
+  # Fetch SwiftClassify
+  git clone https://github.com/kikettas/SwiftClassify &> /dev/null
+
+  # Check that SwiftClassify was successfully fetched
+  SWIFTCLASSIFY_PATH="SwiftClassify/SwiftClassify"
+  PROGRAM_CS_FILE_PATH="$SWIFTCLASSIFY_PATH/Program.cs"
+
+  if [ ! -f "$PROGRAM_CS_FILE_PATH" ]; then
+      echo "Program.cs file not found in the SwiftClassify folder you provided"
+      exit
+  fi
+
+  # Normalize ApiDefinitions with SwiftClassify
+  mcs $PROGRAM_CS_FILE_PATH
+  mono "$SWIFTCLASSIFY_PATH/Program.exe" "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/$FINAL_FRAMEWORK_NAME-Swift.h" ApiDefinitions.cs &> /dev/null
+
+  printf -- " ✅\n\n"
+
+  # Print libraries needed
+  printf -- "$arrow Add these Swift libraries to your Xamarin App with \033[1mNuGet\033[0m:\n\n"
+  otooloutput=$(otool -l -arch armv7 "Fat Libraries/$FINAL_FRAMEWORK_NAME.framework/$FINAL_FRAMEWORK_NAME" | grep libswift)
+  swiftlibraries=${otooloutput//name @rpath\/libswift/}
+  echo ${swiftlibraries//.dylib (offset 24)/\\n}
+
+  # Removed unused files
+  rm ApiDefinitions.cs
+  mv ApiDefinitionsNew.cs ApiDefinitions.cs
+  rm -rf SwiftClassify 2> /dev/null || true
+
+else
+  # Create binding files
+  sharpie bind -sdk iphoneos -o ./ -scope "Fat libraries" "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/"*.h &> /dev/null
+  printf -- " ✅\n\n"
+fi
+
+printf -- '\033[32m SUCCESSFULLY COMPLETED 🚀\033[0m\n\n';
+exit 0;
