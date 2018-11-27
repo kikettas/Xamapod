@@ -51,8 +51,8 @@ Once it finishes, you will get this output:
 
 ### Swift pod
 
-The output is similar but during the building, besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
-with the correct names. Finally all the Swift libraries required by the binding library are listed.
+The output is similar but during the build, besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
+by using the correct names. Finally all the Swift libraries required by the binding library are listed.
 
 
 ```sh
