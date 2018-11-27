@@ -23,7 +23,7 @@ done
 
 if [ -z "$POD_NAME" ]
   then
-    printf "\n❌  The pod name must be specified"
+    printf "\n❌  The pod name must be specified\n"
     exit
 fi
 
