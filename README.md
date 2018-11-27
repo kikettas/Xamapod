@@ -86,3 +86,4 @@ AVFoundation
 SUCCESSFULLY COMPLETED 🚀
 ```
 
+When the building process finishes, all the generated binding files are available in the **Generated** folder.
