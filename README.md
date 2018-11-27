@@ -25,7 +25,7 @@ Simply clone this repository.
 
 To start using the tool, go to the repo folder and run this command:
 
-```bash
+```sh
 sh build -p YOUR_POD_NAME
 ```
 
@@ -35,7 +35,7 @@ Optionally, you can specify both `-s` (subspecs) and `-l`(links to external sour
 
 When it finishes if the pod specified is an **ObjectiveC** pod, you will get an output like this:
 
-```bash
+```sh
 ▸ Installing Pods... ✅
 ▸ Building libraries... ✅
 ▸ Creating fat libraries... ✅
@@ -47,16 +47,15 @@ When it finishes if the pod specified is an **ObjectiveC** pod, you will get an 
 ### Swift pod
 
 Since Swift libraries are not officialy supported by Xamarin, the process of
-bulding this binding files is slightly different in **Swift**. First, you have
+bulding these binding files is slightly different in **Swift**. First, you have
 to mark all the _classes/structs/enums_ that you want to expose
 to the binding library with the `@objc` attribute. After doing so, you can start using the tool.
 
-In the process besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
-with the correct names.
+During the building, besides creating the binding files, these are normalized (thanks to [SwiftClassify](https://github.com/Flash3001/SwiftClassify))
+with the correct names. Finally all the Swift libraries required by the binding library are listed.
 
-In addition to the output obtained with an ObjectiveC library, you also can see all the Swift libraries required by your Xamarin app.
 
-```bash
+```sh
 ▸ Installing Pods... ✅
 ▸ Building libraries... ✅
 ▸ Creating fat libraries... ✅
