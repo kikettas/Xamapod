@@ -16,6 +16,7 @@ from a **Cocoapods** library. The generated binding files are both the **fat lib
 - Xcode Command Line tools (can be downloaded in Xcode or from [here](https://developer.apple.com/downloads/index.action))
 - [Cocoapods](https://guides.cocoapods.org/using/getting-started.html)
 - [ObjectiveSharpie](https://dl.xamarin.com/objective-sharpie/ObjectiveSharpie.pkg)
+- [Mono](https://www.mono-project.com/docs/getting-started/install/mac/)
 
 ## 🛠 Installation
 
