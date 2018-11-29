@@ -83,8 +83,8 @@ printf -- " ✅\n"
 # Build libraries
 printf -- "$arrow Building \033[1mlibraries\033[0m..."
 
-xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=YES -sdk iphonesimulator &> /dev/null
-xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=YES -sdk iphoneos &> /dev/null
+xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=NO -sdk iphonesimulator &> /dev/null
+xcodebuild -project Pods/Pods.xcodeproj -target $POD_NAME -configuration Release ENABLE_BITCODE=NO -sdk iphoneos &> /dev/null
 
 printf -- " ✅\n"
 
