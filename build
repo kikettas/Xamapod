@@ -125,12 +125,11 @@ cd Generated
 
 # Generate bindings files
 printf -- "$arrow Creating \033[1mbinding files\033[0m..."
-
 # if it is a Swift library
 if [ -f "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/$FINAL_FRAMEWORK_NAME-Swift.h" ]; then
 
   # Create binding files
-  sharpie bind -sdk iphoneos -o ./ -scope "Fat libraries" "Fat libraries/$FINAL_FRAMEWORK_NAME.framework/Headers/$FINAL_FRAMEWORK_NAME-Swift.h" &> /dev/null
+  sharpie bind -sdk iphoneos -o ./ -scope "Fat libraries" -f "Fat libraries/$FINAL_FRAMEWORK_NAME.framework" &> /dev/null
 
   if [ ! $? -eq 0 ]; then
     printf "\n❌  There was an error binding the library.\n Are there types to be bound in the $FINAL_FRAMEWORK_NAME-Swift.h file?\n"
